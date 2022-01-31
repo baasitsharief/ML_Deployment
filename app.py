@@ -1,4 +1,4 @@
-from flask import Flask, request, url_for, redirect, render_template
+from flask import Flask, request, jsonify, url_for, redirect, render_template
 import pandas as pd
 from flask_cors import CORS 
 import pickle
@@ -25,12 +25,12 @@ def predict():
 
     setup_df = pd.DataFrame([pd.Series([input_one, input_two, input_three, input_four, input_five, input_six, input_seven, input_eight])])
     preds = model.predict_proba(setup_df)
-    output = '{0: .{1}f}'.formal(preds[0][1], 2)
+    output = '{0: .{1}f}'.format(preds[0][1], 2)
     output = str(float(output)*100)+'%'
-    if output>str(0.5):
-        return render_template('result.html', pred = f'You have the following chance of having diabetes based on our KNN model.\nProbability of having diabetes is {output}')
-    else:
-        return render_template('result.html', pred = f'You have a low chance of having diabetes which is currently considered safe (this is only an example, please consult a certified doctor).\nProbability of having diabetes is {output}')
+    output = [
+        {'description': 'predictions', 'preds': output}
+    ]
+    return jsonify(output)
 
 if __name__ == '__main__':
     app.run(debug=True)
